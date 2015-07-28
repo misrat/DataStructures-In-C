@@ -157,3 +157,7 @@ $RECYCLE.BIN/
 *.sln
 DataStructures-In-C/DataStructures-In-C.vcxproj
 *.filters
+
+.project
+
+.cproject
