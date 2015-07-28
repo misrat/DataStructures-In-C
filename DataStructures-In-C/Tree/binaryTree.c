@@ -79,8 +79,8 @@ TNodeRef createTreeNode(const char* strKey, const char* strValue){
 	TNodeRef temp = malloc(sizeof(struct tNode));
 	assert(temp != NULL);
 
-	temp->key = strKey;
-	temp->value = strValue;
+	temp->key = strdup(strKey);
+	temp->value = strdup(strValue);
 	temp->left = NULL;
 	temp->right = NULL;
 	return temp;
