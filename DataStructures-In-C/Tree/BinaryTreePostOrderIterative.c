@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
+#include "vld.h"
+
+/* Accidentally realized one good use of PostOrderTraversal - to delete a BST */
 
 typedef struct treeNode{
 	char* 				key;
@@ -62,7 +65,7 @@ void push(stackNode** stack, Node e){
 
 	stackNode* currPtr = *stack;//point to stack head
 	if (currPtr == NULL){//empty stack
-		currPtr = newNode;
+		*stack = newNode;
 	}
 	else{
 		stackNode* oldTop = *stack;
@@ -108,7 +111,7 @@ void insert(Node *root, char* strKey, char* strValue){
 		return;
 	}
 
-	int inserted = 0;
+	int inserted = 0; //use a flag condition instead of breaks or continues
 	while (!inserted) {
 		int cmp = strcmp(strKey, x->key); //to go left or right
 		if (cmp < 0){
@@ -130,7 +133,12 @@ void insert(Node *root, char* strKey, char* strValue){
 			}
 		}
 		else {//(newNode->key == x->key), cmp = 0
-			x->value = strValue;
+			//x->value = strValue;	//  cant simply update with a str pointer to a str literal
+			//before updating the value, free memory for previously allocated value
+			char* deleteString = x->value;
+			x->value = strdup(strValue);
+			free(deleteString);
+			deleteNode(newNode);	// unused node deleted - delete the node that was not inserted- else memory leak
 			inserted = 1;
 		}
 	}
@@ -149,9 +157,10 @@ void printPostIterative(Node x){
 		else{
 			current = top(stackHead);
 			if(current->right == NULL || current->right == isVisited){
-				printf("%s \n", current->key);
+				printf("Key = %s, Value = %s\n", current->key, current->value);
 				isVisited = current;
-				pop(&stackHead);//delete the node here
+				Node temp = pop(&stackHead); 
+				deleteNode(temp);
 				current = NULL;
 			}
 			else{
@@ -166,16 +175,16 @@ void printPostIterative(Node x){
 
 int main(void) {
 	Node treeRoot = NULL;
-	insert(&treeRoot, "i", "one");
+	insert(&treeRoot, "i", "one"); 
 	insert(&treeRoot, "j", "one");
 	insert(&treeRoot, "a","one");
 	insert(&treeRoot, "b","one");
-	insert(&treeRoot, "j","one");
+	insert(&treeRoot, "j","two"); //update
 	insert(&treeRoot, "x","one");
 	insert(&treeRoot,"z","one");
 	printPostIterative(treeRoot);
 
-
+	
 
 	return EXIT_SUCCESS;
 }
