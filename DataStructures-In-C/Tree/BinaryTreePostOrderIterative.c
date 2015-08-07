@@ -19,27 +19,41 @@ typedef treeNode* Node;
 
 //constructor
 Node createNode(char* key, char* value){
+	//first allocate memory for the tree node pointer
 	treeNode* tempNode = malloc(sizeof(treeNode));
+	// check if memory has been allocated
 	if(tempNode == NULL){
 		puts("No memory");
 		return NULL;
 	}
+	// assign members of the structure
 	tempNode->left = NULL;
 	tempNode->right = NULL;
+	// char* used to point to strings, 
+	// dynamically allocate memory for the string, and copy from 
+	// the char* passed to the method. 
+	// strdup() does that
 	tempNode->key = strdup(key);
 	tempNode->value = strdup(value);
 	return tempNode;
 }
 
+/* free the dynamically  allocated memory for all the members of the struct and 
+the struct pointer. 
+free the members first(only dynamically allocated) and then the containing struct pointer
+TIP - for every malloc() or calloc() there should be a free() */
+
 void deleteNode(Node x){
 	if (x != NULL){
-		free(x->key);
-		free(x->value);
-		free(x);
+		free(x->key); // free memory created by the strdup()
+		free(x->value);// same as above
+		free(x); // free memory allocated for struct pointer
 	}
 }
 
 // struct for a stack of nodes
+// stack is a linked structure, each Node of the Stack contains 
+// reference to a tree node and the next pointer- which points to a stack node
 typedef struct stackNode{
 	Node node;
 	struct stackNode* next;
@@ -47,7 +61,7 @@ typedef struct stackNode{
 
 typedef stackNode* Stack;
 
-//Stack constructor - not required
+//Stack constructor
 stackNode* createStack(){
 	stackNode* tempStack = malloc(sizeof(stackNode));
 	if(tempStack == NULL){
@@ -55,25 +69,27 @@ stackNode* createStack(){
 		return NULL;
 	}
 	return tempStack;
-}
+}		
 
 //	push element e into the stack top, return new stack top
+// pass the pointer to pointer to stack top, no values returned 
 void push(stackNode** stack, Node e){
-	stackNode* newNode = createStack();
+	stackNode* newNode = createStack(); // need to free memory
 	newNode->node = e;
 	newNode->next = NULL;
 
 	stackNode* currPtr = *stack;//point to stack head
 	if (currPtr == NULL){//empty stack
-		*stack = newNode;
+		*stack = newNode; // directly modify by de-referencing pointer to pointer to stack top
 	}
 	else{
-		stackNode* oldTop = *stack;
+		stackNode* oldTop = *stack; // keep track of old stack top
 		*stack = newNode; //modify stack to point to newNode
 		newNode->next = oldTop;
 	}
 }
 
+/*Peek into the stack top*/
 Node top(Stack stack){
 	if(stack == NULL){
 		return NULL;
@@ -83,14 +99,16 @@ Node top(Stack stack){
 	}
 }
 
+/* Pop a node from the stack - either return the stackNode or just the element
+   In case only element is returned, the stack node pointer has to be freed */
 Node pop(Stack* stack){
 	if(*stack == NULL)
 		return NULL;
 	else{
 		stackNode* oldTop = *stack;
-		treeNode* result = (*stack)->node;
-		*stack = oldTop->next;
-		free(oldTop);
+		treeNode* result = oldTop->node;
+		*stack = oldTop->next; //pointer-to-pointer to point to next stack node
+		free(oldTop); // frees memory allocated in stack constructor
 		return result;
 	}
 }
@@ -117,7 +135,7 @@ void insert(Node *root, char* strKey, char* strValue){
 		if (cmp < 0){
 			if (x->left == NULL) {
 				x->left = newNode;
-				inserted = 1;
+				inserted = 1; // node inserted in tree -exit while loop
 			}
 			else {
 				x = x->left;
@@ -132,23 +150,22 @@ void insert(Node *root, char* strKey, char* strValue){
 				x = x->right;
 			}
 		}
-		else {//(newNode->key == x->key), cmp = 0
-			//x->value = strValue;	//  cant simply update with a str pointer to a str literal
+		else {// cmp = 0, node exists, update value.
+			//x->value = strValue;	// DO NOT - simply update 
 			//before updating the value, free memory for previously allocated value
 			char* deleteString = x->value;
 			x->value = strdup(strValue);
 			free(deleteString);
-			deleteNode(newNode);	// unused node deleted - delete the node that was not inserted- else memory leak
+			deleteNode(newNode);	// unused node deleted - else memory leak
 			inserted = 1;
 		}
 	}
 }
 
-
 void printPostIterative(Node x){
 	Stack stackHead = NULL;//stack functions
 	Node current = x;
-	Node isVisited = NULL;
+	Node isVisited = NULL; // a flag to check if a node has been previously visited or not
 	while(current != NULL || !isEmpty(stackHead) ){
 		if(current != NULL){
 			push(&stackHead, current );
@@ -182,6 +199,7 @@ int main(void) {
 	insert(&treeRoot, "j","two"); //update
 	insert(&treeRoot, "x","one");
 	insert(&treeRoot,"z","one");
+	insert(&treeRoot, "z", "three"); //update
 	printPostIterative(treeRoot);
 
 	
