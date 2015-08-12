@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #define null NULL
+
 //create a linked list
 typedef struct node{
 	int key;
@@ -62,8 +63,8 @@ int put(Map thisMap, const int key, const char* value){
 	int index = hash(key, M);
 
 	Node newNode = createNode(key, value, NULL);
-
-	Node bucket = thisMap->buckets[index];
+	++(thisMap->size);
+	
 	//insert into the bucket
 	if (thisMap->buckets[index] == NULL){ //empty bucket
 		thisMap->buckets[index] = newNode;
@@ -75,6 +76,7 @@ int put(Map thisMap, const int key, const char* value){
 		while (current != NULL){
 			if (current->key == key){
 				current->value = strdup(value); // need to free memory for prev value
+				--(thisMap->size); //no new element added
 				return 1;
 			}
 			current = current->next;
@@ -103,6 +105,29 @@ char* get(Map map, const int key){
 	return NULL;
 }
 
+//display map
+void printList(Node list);
+void displayMap(Map map){
+	int nBuckets = sizeof(map->buckets) / sizeof(Node);
+	if (map->size == 0){
+		puts("Empty Map");
+		return;
+	}
+	for (int i = 0; i < nBuckets; ++i){
+		Node bucket = map->buckets[i];
+		if (bucket){
+			printList(bucket);
+		}
+	}
+}
+
+void printList(Node list){
+	while (list){
+		printf("[Key = %d, Value = %s]\n", list->key, list->value);
+		list = list->next;
+	}
+}
+
 /*test code*/
 int main(){
 	Map phoneBook = createMap();
@@ -112,4 +137,5 @@ int main(){
 	put(phoneBook, 8847066, "yc");
 	put(phoneBook, 8847061, "xc");
 	put(phoneBook, 6678069, "gc");
+	displayMap(phoneBook);
 }
