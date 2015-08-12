@@ -30,7 +30,7 @@ void addToList(Node* head, const char* data){
 	}
 	else{
 		Node tail = *head;
-		while (tail->next){
+		while (tail->next){// while(tail->next != NULL)
 			tail = tail->next;
 		}
 		tail->next = newNode;
