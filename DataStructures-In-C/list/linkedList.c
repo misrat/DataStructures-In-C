@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "vld.h"
+//#include "vld.h"
 
 typedef struct node{
 	char *data;
