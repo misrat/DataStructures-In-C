@@ -161,3 +161,4 @@ DataStructures-In-C/DataStructures-In-C.vcxproj
 .project
 
 .cproject
+*.vcxproj
